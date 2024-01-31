@@ -17,13 +17,11 @@ import java.util.Map;
 
 @Service
 public class JwtService {
-    public final String SECRET;
-    public final int exp;
+    private final String SECRET;
 
-    public JwtService(@Value("${jwt.secret}") String secret, @Value("${jwt.exp}") int exp){
+    public JwtService(
+            @Value("${jwt.secret}") String secret){
         SECRET = secret;
-        this.exp = exp;
-
     }
 
     public void validateToken(final String token) throws ExpiredJwtException, IllegalArgumentException {
@@ -34,11 +32,11 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(String username){
-        Map<String, Object> claimns = new HashMap<>();
-        return createToken(claimns,username);
+    public String generateToken(String username, int exp){
+        Map<String, Object> claims = new HashMap<>();
+        return createToken(claims,username, exp);
     }
-    public String createToken(Map<String,Object> claims, String username){
+    public String createToken(Map<String,Object> claims, String username, int exp){
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(username)
@@ -55,8 +53,8 @@ public class JwtService {
                 .getBody()
                 .getSubject();
     }
-    public String refreshToken(final String token){
+    public String refreshToken(final String token, int exp){
         String username = getSubject(token);
-        return generateToken(username);
+        return generateToken(username, exp);
     }
 }

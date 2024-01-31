@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,10 +31,13 @@ public class UserConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.csrf().disable()
-                .authorizeHttpRequests()
-                .requestMatchers("/api/v1/auth/register","/api/v1/auth/login","/api/v1/auth/validate","/api/v1/auth/reset-password","/api/v1/auth/activate","/api/v1/auth/logout","/api/v1/auth/auto-login","/api/v1/auth/logged-in","/api/v1/auth/authorize").permitAll()
-                .and()
+        return http.csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests( authorize ->
+                        authorize.requestMatchers(
+                                "/api/v1/auth/register",
+                                        "/api/v1/auth/login"
+                        )
+                .permitAll())
                 .build();
     }
 
