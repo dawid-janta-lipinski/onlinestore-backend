@@ -1,6 +1,8 @@
 package com.example.auth.service;
 
 import com.example.auth.dao.UserDao;
+import com.example.auth.exceptions.UserExistingWithEmailException;
+import com.example.auth.exceptions.UserExistingWithNameException;
 import com.example.auth.model.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -9,11 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import javax.naming.AuthenticationException;
 
 @Service
 @RequiredArgsConstructor
@@ -30,33 +29,39 @@ public class UserService {
     private int refreshExp;
 
 
-    public UserEntity saveUser(UserEntity userEntity){
+    private void saveUser(UserEntity userEntity){
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
-        return userDao.saveAndFlush(userEntity);
+        userDao.saveAndFlush(userEntity);
     }
-    public String generateToken(String username, int exp){
+    private String generateToken(String username, int exp){
         return jwtService.generateToken(username, exp);
     }
-    public void validateToken(String token){
+    private void validateToken(String token){
         jwtService.validateToken(token);
     }
-    public void register(UserDTO userDTO) {
-        //TODO validate user in exists or if not null
+    public void register(UserRegisterDTO userRegisterDTO) {
+        userDao.findUserByLogin(userRegisterDTO.getLogin()).ifPresent( login -> {
+            throw new UserExistingWithNameException("User with login " + login + " already exists.");
+        });
 
-        saveUser(userMapper.createUserEntityFromUserDTO(userDTO));
+        userDao.findUserByEmail(userRegisterDTO.getEmail()).ifPresent(email -> {
+            throw new UserExistingWithEmailException("User with email " + email + " already exists.");
+        });
+
+        saveUser(userMapper.createUserEntityFromUserDTO(userRegisterDTO));
     }
 
-    public ResponseEntity<?> login (LoginRequest loginRequest, HttpServletResponse response) {
-        UserEntity user = userDao.findUserByLogin(loginRequest.getLogin()).orElse(null);
+    public ResponseEntity<?> login (LoginRequestDTO loginRequestDTO, HttpServletResponse response) {
+        UserEntity user = userDao.findUserByLogin(loginRequestDTO.getLogin()).orElse(null);
         if (user == null) return ResponseEntity.ok(new AuthResponse(Code.A1));
         try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getLogin(),loginRequest.getPassword()));
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequestDTO.getLogin(), loginRequestDTO.getPassword()));
         } catch (Exception e){
             return ResponseEntity.ok(new AuthResponse(Code.A2));
         }
 
-        Cookie refresh = cookieService.generateCookie("refresh", generateToken(loginRequest.getLogin(), refreshExp), refreshExp);
-        Cookie cookie = cookieService.generateCookie("Authorization", generateToken(loginRequest.getLogin(), exp), exp);
+        Cookie refresh = cookieService.generateCookie("refresh", generateToken(loginRequestDTO.getLogin(), refreshExp), refreshExp);
+        Cookie cookie = cookieService.generateCookie("Authorization", generateToken(loginRequestDTO.getLogin(), exp), exp);
         response.addCookie(cookie);
         response.addCookie(refresh);
         return ResponseEntity.ok(LoginResponse.builder()

@@ -5,9 +5,9 @@ public enum Code {
     PERMIT("PERMIT"),
     A1("This user doesn't exist"),
     A2("The data provided is incorrect"),
-    A3("Wskazany token jest pusty lub nie ważny"),
-    A4("Użytkownik o podanej nazwie juz istnieje"),
-    A5("Użytkownik o podanmym mailu juz istnieje"),
+    A3("User with this login already exists"),
+    A4("User with this email already exists"),
+    A5("Wskazany token jest pusty lub nie ważny"),
     A6("Użytkownik nie istnieje");
 
     public final String label;
