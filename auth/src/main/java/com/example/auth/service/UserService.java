@@ -13,6 +13,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.naming.AuthenticationException;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -46,25 +48,21 @@ public class UserService {
 
     public ResponseEntity<?> login (LoginRequest loginRequest, HttpServletResponse response) {
         UserEntity user = userDao.findUserByLogin(loginRequest.getLogin()).orElse(null);
-        Authentication authentication = authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getLogin(), loginRequest.getPassword()));
-
-        if (user == null || !authentication.isAuthenticated()) return ResponseEntity.ok(new AuthResponse(Code.A1));
-        //TODO password should be decoded after getting it form db
-        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+        if (user == null) return ResponseEntity.ok(new AuthResponse(Code.A1));
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getLogin(),loginRequest.getPassword()));
+        } catch (Exception e){
             return ResponseEntity.ok(new AuthResponse(Code.A2));
         }
 
-        Cookie refresh = cookieService.generateCookie("refresh", generateToken(loginRequest.getLogin(),refreshExp), refreshExp);
-        Cookie cookie = cookieService.generateCookie("Authorization", generateToken(loginRequest.getLogin(),exp) , exp);
+        Cookie refresh = cookieService.generateCookie("refresh", generateToken(loginRequest.getLogin(), refreshExp), refreshExp);
+        Cookie cookie = cookieService.generateCookie("Authorization", generateToken(loginRequest.getLogin(), exp), exp);
         response.addCookie(cookie);
         response.addCookie(refresh);
-
         return ResponseEntity.ok(LoginResponse.builder()
                 .login(user.getLogin())
                 .email(user.getEmail())
                 .role(user.getRole())
                 .build());
-
     }
 }
