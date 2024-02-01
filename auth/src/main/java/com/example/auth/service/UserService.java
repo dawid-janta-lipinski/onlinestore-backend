@@ -4,9 +4,12 @@ import com.example.auth.dao.UserDao;
 import com.example.auth.exceptions.UserExistingWithEmailException;
 import com.example.auth.exceptions.UserExistingWithNameException;
 import com.example.auth.model.*;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,8 +17,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
     private final UserDao userDao;
     private final UserMapper userMapper;
@@ -36,8 +43,29 @@ public class UserService {
     private String generateToken(String username, int exp){
         return jwtService.generateToken(username, exp);
     }
-    private void validateToken(String token){
-        jwtService.validateToken(token);
+    public void validateToken(HttpServletRequest request, HttpServletResponse response) throws ExpiredJwtException, IllegalArgumentException{
+        List<Cookie> cookies = Arrays.stream(request.getCookies()).toList();
+
+        if (cookies.isEmpty()) throw new IllegalArgumentException("Token can't be null");
+
+        String token = null;
+        String refresh = null;
+
+        for(Cookie cookie:cookies){
+            if (cookie.getName().equals("Authorization")) token = cookie.getValue();
+            if (cookie.getName().equals("refresh")) refresh = cookie.getValue();
+        }
+
+        try {
+            jwtService.validateToken(token);
+        } catch (ExpiredJwtException | IllegalArgumentException exception){
+            jwtService.validateToken(refresh);
+            Cookie authorization = cookieService.generateCookie("Authorization", jwtService.refreshToken(refresh,exp), exp);
+            Cookie refreshCookie = cookieService.generateCookie("refresh", jwtService.refreshToken(refresh,refreshExp), refreshExp);
+            response.addCookie(authorization);
+            response.addCookie(refreshCookie);
+
+        }
     }
     public void register(UserRegisterDTO userRegisterDTO) {
         userDao.findUserByLogin(userRegisterDTO.getLogin()).ifPresent( login -> {
@@ -61,8 +89,8 @@ public class UserService {
         }
 
         Cookie refresh = cookieService.generateCookie("refresh", generateToken(loginRequestDTO.getLogin(), refreshExp), refreshExp);
-        Cookie cookie = cookieService.generateCookie("Authorization", generateToken(loginRequestDTO.getLogin(), exp), exp);
-        response.addCookie(cookie);
+        Cookie authorization = cookieService.generateCookie("Authorization", generateToken(loginRequestDTO.getLogin(), exp), exp);
+        response.addCookie(authorization);
         response.addCookie(refresh);
         return ResponseEntity.ok(LoginResponse.builder()
                 .login(user.getLogin())

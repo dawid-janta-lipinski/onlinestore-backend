@@ -20,7 +20,7 @@ public class UserRegisterDTO {
     @Email
     private String email;
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @Length(min = 5, max = 50, message = "Password should have between 8 and 75 characters")
+    @Length(min = 8, max = 75, message = "Password should have between 8 and 75 characters")
     private String password;
     private Role role;
 }
