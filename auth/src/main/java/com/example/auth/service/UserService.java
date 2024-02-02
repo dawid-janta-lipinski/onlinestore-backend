@@ -35,8 +35,7 @@ public class UserService {
     private int exp;
     @Value("${jwt.refresh.exp}")
     private int refreshExp;
-
-
+    private final EmailService emailService;
     private void saveUser(UserEntity userEntity){
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
         userDao.saveAndFlush(userEntity);
@@ -81,8 +80,9 @@ public class UserService {
             log.info("Users alredy exist with this mail");
             throw new UserExistingWithEmailException("User with email " + email + " already exists.");
         });
-
-        saveUser(userMapper.createUserEntityFromUserDTO(userRegisterDTO));
+        UserEntity user = userMapper.createUserEntityFromUserDTO(userRegisterDTO);
+        saveUser(user);
+        emailService.sendActivation(user);
     }
 
     public ResponseEntity<?> login (LoginRequestDTO loginRequestDTO, HttpServletResponse response) {
