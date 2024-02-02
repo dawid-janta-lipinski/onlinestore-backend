@@ -1,14 +1,20 @@
 package com.example.auth.model;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+
+import java.sql.Timestamp;
 
 @Getter
 @Setter
-@Builder
 public class LoginResponse {
-    private String login;
-    private String email;
-    private Role role;
+    private final String timestamp;
+    private final boolean message;
+    private final Code code;
+
+    public LoginResponse(boolean message){
+        this.timestamp = String.valueOf(new Timestamp(System.currentTimeMillis()));
+        this.message = message;
+        this.code = Code.SUCCESS;
+    }
 }
+

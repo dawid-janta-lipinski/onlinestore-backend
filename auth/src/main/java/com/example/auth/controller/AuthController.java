@@ -31,8 +31,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AuthResponse(Code.A3));
         } catch (UserExistingWithEmailException ex){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AuthResponse(Code.A4));
-
-        }
+    }
         return ResponseEntity.ok(new AuthResponse(Code.SUCCESS));
     }
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -53,8 +52,15 @@ public class AuthController {
             userService.validateToken(request,response);
             return ResponseEntity.ok(new AuthResponse(Code.PERMIT));
         } catch (ExpiredJwtException | IllegalArgumentException exception) {
-            return ResponseEntity.status(401).body(new AuthResponse(Code.A5));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponse(Code.A5));
         }
     }
-
+    @GetMapping("auto-login")
+    public ResponseEntity<?> autoLogin(HttpServletRequest request, HttpServletResponse response){
+        return userService.loginByToken(request, response);
+    }
+    @GetMapping("logged-in")
+    public ResponseEntity<?> loggedIn(HttpServletRequest request, HttpServletResponse response){
+        return userService.loggedIn(request, response);
+    }
 }
