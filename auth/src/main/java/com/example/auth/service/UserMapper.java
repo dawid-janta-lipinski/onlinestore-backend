@@ -13,6 +13,7 @@ public class UserMapper {
                 .password(userRegisterDTO.getPassword())
                 .role(userRegisterDTO.getRole())
                 .isLock(true)
+                .isEnabled(false)
                 .build();
     }
 }

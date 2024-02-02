@@ -14,7 +14,8 @@ public class RouteValidator {
     public static final List<String> publicEndpoints = List.of(
             "/auth/register",
             "/auth/login",
-            "/auth/validate"
+            "/auth/validate",
+            "/auth/activate"
     );
     //TODO fix this
 //    private Set<Endpoint> adminEndpoints = new HashSet<>();

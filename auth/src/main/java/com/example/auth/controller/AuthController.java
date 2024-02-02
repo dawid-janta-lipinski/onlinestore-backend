@@ -1,5 +1,6 @@
 package com.example.auth.controller;
 
+import com.example.auth.exceptions.UserDoesntExistException;
 import com.example.auth.exceptions.UserExistingWithEmailException;
 import com.example.auth.exceptions.UserExistingWithNameException;
 import com.example.auth.model.*;
@@ -62,5 +63,16 @@ public class AuthController {
     @GetMapping("logged-in")
     public ResponseEntity<?> loggedIn(HttpServletRequest request, HttpServletResponse response){
         return userService.loggedIn(request, response);
+    }
+    @GetMapping("activate")
+    public ResponseEntity<AuthResponse> activateUser(@RequestParam String uid){
+        try {
+            userService.activateUser(uid);
+            return ResponseEntity.ok(new AuthResponse(Code.SUCCESS));
+        } catch (UserDoesntExistException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AuthResponse(Code.A1));
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new AuthResponse(Code.A6));
+        }
     }
 }

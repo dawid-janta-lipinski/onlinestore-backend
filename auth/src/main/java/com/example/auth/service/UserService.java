@@ -1,6 +1,7 @@
 package com.example.auth.service;
 
 import com.example.auth.dao.UserDao;
+import com.example.auth.exceptions.UserDoesntExistException;
 import com.example.auth.exceptions.UserExistingWithEmailException;
 import com.example.auth.exceptions.UserExistingWithNameException;
 import com.example.auth.model.*;
@@ -147,5 +148,12 @@ public class UserService {
         } catch (ExpiredJwtException | IllegalArgumentException exception){
             return ResponseEntity.ok(new LoginResponse(false));
         }
+    }
+    public void activateUser(String uid) throws UserDoesntExistException {
+        UserEntity user = userDao.findUserByUuid(uid).orElse(null);
+        if (user == null) throw new UserDoesntExistException("User doesn't exist");
+        user.setLock(false);
+        user.setEnabled(true);
+        userDao.save(user);
     }
 }
