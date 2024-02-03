@@ -1,9 +1,11 @@
 package com.example.auth.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
+@AllArgsConstructor
 @Data
-public class LoginRequestDTO {
+public class AuthRequestDTO {
     private String login;
     private String password;
 }

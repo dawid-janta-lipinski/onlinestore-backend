@@ -12,7 +12,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -20,7 +19,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class UserConfiguration {
+public class AuthConfiguration {
 
     private final UserDao userDao;
 
@@ -37,7 +36,10 @@ public class UserConfiguration {
                                 "/api/v1/auth/register",
                                         "/api/v1/auth/login",
                                         "/api/v1/auth/validate",
-                                        "/api/v1/auth/activate"
+                                        "/api/v1/auth/activate",
+                                        "/api/v1/auth/reset-password",
+                                        "/api/v1/auth/reset-password"
+
                         )
                 .permitAll())
                 .build();

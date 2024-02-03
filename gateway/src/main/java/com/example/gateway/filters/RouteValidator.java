@@ -1,6 +1,5 @@
 package com.example.gateway.filters;
 
-import com.example.gateway.model.Endpoint;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +14,8 @@ public class RouteValidator {
             "/auth/register",
             "/auth/login",
             "/auth/validate",
-            "/auth/activate"
+            "/auth/activate",
+            "/auth/reset-password"
     );
     //TODO fix this
 //    private Set<Endpoint> adminEndpoints = new HashSet<>();

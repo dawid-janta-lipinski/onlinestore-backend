@@ -22,14 +22,14 @@ public class EmailService {
     private String frontendUrl;
 
     @Value("classpath:static/mail-activate.html")
-    private Resource activeTemplate;
+    private Resource activateTemplate;
     @Value("classpath:static/reset-password.html")
     private Resource recoveryTemplate;
 
     public void sendActivation(UserEntity user){
         log.info("--START sendActivation");
         try {
-            String html = Files.toString(activeTemplate.getFile(), Charsets.UTF_8);
+            String html = Files.toString(activateTemplate.getFile(), Charsets.UTF_8);
             html = html.replace("https://google.com",frontendUrl+"/activate/"+user.getUuid());
             emailConfiguration.sendMail(user.getEmail(), html,"Account activation",true);
         } catch (IOException e){
@@ -46,7 +46,7 @@ public class EmailService {
             html = html.replace("https://google.com",frontendUrl+"/recover-password/"+uid);
             emailConfiguration.sendMail(user.getEmail(), html,"Password Recovery.",true);
         } catch (IOException e){
-            log.info("Cant send mail");
+            log.info("Cant send email");
             throw new RuntimeException(e);
         }
         log.info("--STOP sendPasswordRecovery");

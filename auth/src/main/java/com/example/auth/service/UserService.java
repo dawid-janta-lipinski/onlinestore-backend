@@ -1,5 +1,6 @@
 package com.example.auth.service;
 
+import com.example.auth.dao.ResetPasswordOperationsDao;
 import com.example.auth.dao.UserDao;
 import com.example.auth.exceptions.UserDoesntExistException;
 import com.example.auth.exceptions.UserExistingWithEmailException;
@@ -37,6 +38,8 @@ public class UserService {
     @Value("${jwt.refresh.exp}")
     private int refreshExp;
     private final EmailService emailService;
+    private final ResetPasswordService resetPasswordService;
+    private final ResetPasswordOperationsDao resetPasswordOperationsDao;
     private void saveUser(UserEntity userEntity){
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
         userDao.saveAndFlush(userEntity);
@@ -48,7 +51,7 @@ public class UserService {
         List<Cookie> cookies = Arrays.stream(request.getCookies()).toList();
 
         if (cookies.isEmpty()){
-            log.info("Can't login because in token is empty");
+            log.info("Can't login because token is empty");
             throw new IllegalArgumentException("Token can't be null");
         }
 
@@ -86,9 +89,9 @@ public class UserService {
         emailService.sendActivation(user);
     }
 
-    public ResponseEntity<?> login (LoginRequestDTO loginRequestDTO, HttpServletResponse response) {
+    public ResponseEntity<?> login (AuthRequestDTO loginRequestDTO, HttpServletResponse response) {
         log.info("--START LoginService");
-        UserEntity user = userDao.findUserByLogin(loginRequestDTO.getLogin()).orElse(null);
+        UserEntity user = userDao.findUserByLoginIfNotLockAndEnabled(loginRequestDTO.getLogin()).orElse(null);
         if (user == null){
             log.info("User dont exist");
             log.info("--STOP LoginService");
@@ -155,5 +158,29 @@ public class UserService {
         user.setLock(false);
         user.setEnabled(true);
         userDao.save(user);
+    }
+
+    public void recoverPassword(String email) throws UserDoesntExistException {
+        UserEntity user = userDao.findUserByEmail(email).orElse(null);
+        if (user == null) throw new UserDoesntExistException("This user doesn't exist in our database");
+        ResetPasswordOperationEntity resetPassword = resetPasswordService.initResetOperation(user);
+        emailService.sendPasswordRecovery(user, user.getUuid());
+    }
+
+    public void changePassword(ChangePasswordData userData) throws UserDoesntExistException {
+        UserEntity user = userDao.findUserByUuid(userData.getUid()).orElse(null);
+        if (user == null) throw new UserDoesntExistException("This user doesn't exist in our database");
+        user.setPassword(userData.getPassword());
+        saveUser(user);
+        resetPasswordService.endOperation(userData.getUid());
+    }
+
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+        log.info("Delete all cookies");
+        Cookie cookie = cookieService.removeCookie(request.getCookies(),"Authorization");
+        if (cookie != null) response.addCookie(cookie);
+        cookie = cookieService.removeCookie(request.getCookies(),"refresh");
+        if (cookie != null) response.addCookie(cookie);
+        return  ResponseEntity.ok(new AuthResponse(Code.SUCCESS));
     }
 }
