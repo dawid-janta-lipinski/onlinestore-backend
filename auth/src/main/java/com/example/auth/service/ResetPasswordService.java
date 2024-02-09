@@ -26,7 +26,7 @@ public class ResetPasswordService {
         log.info("--START initResetOperation");
         ResetPasswordOperationEntity resetPassword = ResetPasswordOperationEntity.builder()
                 .uid(UUID.randomUUID().toString())
-                .createDate(new Timestamp(System.currentTimeMillis()).toString())
+                .createDate(new Timestamp(System.currentTimeMillis()))
                 .user(user)
                 .build();
 

@@ -43,7 +43,7 @@ public class EmailService {
         try {
             log.info("--START sendPasswordRecovery");
             String html = Files.toString(recoveryTemplate.getFile(), Charsets.UTF_8);
-            html = html.replace("https://google.com",frontendUrl+"/recover-password/"+uid);
+            html = html.replace("https://google.com",frontendUrl+"/password-recovery/"+uid);
             emailConfiguration.sendMail(user.getEmail(), html,"Password Recovery.",true);
         } catch (IOException e){
             log.info("Cant send email");

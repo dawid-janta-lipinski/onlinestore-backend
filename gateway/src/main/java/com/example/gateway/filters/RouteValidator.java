@@ -13,8 +13,12 @@ public class RouteValidator {
     public static final List<String> publicEndpoints = List.of(
             "/auth/register",
             "/auth/login",
+            "/auth/auto-login",
+            "/auth/logout",
+            "/auth/logged-in",
             "/auth/validate",
             "/auth/activate",
+            "/auth/reset-password",
             "/auth/reset-password"
     );
     //TODO fix this

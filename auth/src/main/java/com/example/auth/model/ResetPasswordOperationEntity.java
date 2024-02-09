@@ -3,6 +3,8 @@ package com.example.auth.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.sql.Timestamp;
+
 @Table(name = "reset_password_operations")
 @Entity
 @Getter
@@ -19,6 +21,6 @@ public class ResetPasswordOperationEntity {
     @JoinColumn(name = "users")
     private UserEntity user;
     @Column(name = "create_date")
-    private String createDate;
+    private Timestamp createDate;
     private String uid;
 }

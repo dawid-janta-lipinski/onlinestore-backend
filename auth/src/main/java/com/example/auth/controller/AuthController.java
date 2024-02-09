@@ -27,10 +27,15 @@ public class AuthController {
     @PostMapping("register")
     public ResponseEntity<AuthResponse> register (@Valid @RequestBody UserRegisterDTO userRegisterDTO){
         try {
+            log.info("--START REGISTER USER");
             userService.register(userRegisterDTO);
+            log.info("--STOP REGISTER USER");
         } catch (UserExistingWithNameException e){
+            log.info("User with this login already exists");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AuthResponse(Code.A3));
         } catch (UserExistingWithEmailException ex){
+            log.info("User with this email already exists");
+
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AuthResponse(Code.A4));
     }
         return ResponseEntity.ok(new AuthResponse(Code.SUCCESS));

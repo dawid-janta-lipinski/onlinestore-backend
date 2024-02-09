@@ -48,6 +48,9 @@ public class UserService {
         return jwtService.generateToken(username, exp);
     }
     public void validateToken(HttpServletRequest request, HttpServletResponse response) throws ExpiredJwtException, IllegalArgumentException{
+
+        if (request.getCookies() == null) throw new IllegalArgumentException("Token can't be null");
+
         List<Cookie> cookies = Arrays.stream(request.getCookies()).toList();
 
         if (cookies.isEmpty()){
