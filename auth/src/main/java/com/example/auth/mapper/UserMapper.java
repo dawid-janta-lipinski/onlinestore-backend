@@ -1,4 +1,4 @@
-package com.example.auth.service;
+package com.example.auth.mapper;
 
 import com.example.auth.model.UserRegisterDTO;
 import com.example.auth.model.UserEntity;

@@ -5,6 +5,7 @@ import com.example.auth.dao.UserDao;
 import com.example.auth.exceptions.UserDoesntExistException;
 import com.example.auth.exceptions.UserExistingWithEmailException;
 import com.example.auth.exceptions.UserExistingWithNameException;
+import com.example.auth.mapper.UserMapper;
 import com.example.auth.model.*;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;

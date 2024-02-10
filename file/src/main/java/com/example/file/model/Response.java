@@ -1,11 +1,10 @@
-package com.example.product.model;
+package com.example.file.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
+
 
 @Getter
 public class Response {
@@ -17,3 +16,4 @@ public class Response {
         this.message = message;
     }
 }
+
