@@ -116,4 +116,21 @@ public class AuthController {
         log.info("--TRY LOGOUT USER");
         return userService.logout(request, response);
     }
+    @RequestMapping(path = "/authorize",method = RequestMethod.GET)
+    public ResponseEntity<AuthResponse> authorize(HttpServletRequest request,HttpServletResponse response) {
+        try{
+            log.info("--START authorize");
+            userService.validateToken(request,response);
+            userService.authorize(request);
+            log.info("--STOP authorize");
+            return ResponseEntity.ok(new AuthResponse(Code.PERMIT));
+        }catch (IllegalArgumentException | ExpiredJwtException e){
+            log.info("Token is not correct");
+            return ResponseEntity.status(401).body(new AuthResponse(Code.A3));
+        }catch (UserDoesntExistException exception){
+            log.info("User doesn't exist or has no Admin status");
+            return ResponseEntity.status(401).body(new AuthResponse(Code.A7));
+        }
+    }
+
 }

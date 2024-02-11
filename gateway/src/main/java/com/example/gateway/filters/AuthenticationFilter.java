@@ -26,7 +26,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
     private final JwtUtil jwtUtil;
     @Value("${spring.profiles.active}")
     private String activeProfile;
-    private Carousel carousel;
+    private final Carousel carousel;
     public AuthenticationFilter(JwtUtil jwtUtil, RestTemplate restTemplate, RouteValidator validator, Carousel carousel) {
         super(Config.class);
         this.carousel = carousel;
@@ -38,7 +38,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
     public GatewayFilter apply(Config config) {
         return ((exchange, chain) -> {
             log.info("--START GatewayFilter");
-            if (!validator.isSecured.test(exchange.getRequest())) {
+            if (!validator.isSecure.test(exchange.getRequest())) {
                 log.info("--STOP GatewayFilter");
                 return chain.filter(exchange);
             }
@@ -81,11 +81,11 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                     HttpEntity<Object> httpEntity = new HttpEntity<>(httpHeaders);
                     ResponseEntity<String> response;
                     //TODO fix this below
-//                    if (validator.isAdmin.test(exchange.getRequest())){
-//                        response = template.exchange("http://"+carousel.getUriAuth()+"/api/v1/auth/authorize", HttpMethod.GET,httpEntity, String.class);
-//                    }else {
+                    if (validator.isAdmin.test(exchange.getRequest())){
+                        response = template.exchange("http://"+carousel.getUriAuth()+"/api/v1/auth/authorize", HttpMethod.GET,httpEntity, String.class);
+                    }else {
                         response = template.exchange("http://"+carousel.getUriAuth()+"/api/v1/auth/validate", HttpMethod.GET,httpEntity, String.class);
-//                    }
+                    }
                     if (response.getStatusCode() != HttpStatus.OK) throw new HttpClientErrorException(HttpStatus.UNAUTHORIZED, "Can't login bad token");
                     List<String> cookiesList = response.getHeaders().get(HttpHeaders.SET_COOKIE);
                     if (cookiesList == null) throw new HttpClientErrorException(HttpStatus.UNAUTHORIZED, "Can't login bad token");

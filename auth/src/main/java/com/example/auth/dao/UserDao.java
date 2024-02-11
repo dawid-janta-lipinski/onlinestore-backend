@@ -15,4 +15,8 @@ public interface UserDao extends JpaRepository<UserEntity, Long> {
 
     @Query(nativeQuery = true, value = "SELECT * FROM users WHERE login=?1 AND islock=false AND isenabled=true")
     Optional<UserEntity> findUserByLoginIfNotLockAndEnabled(String login);
+
+    @Query(nativeQuery = true, value = "SELECT * FROM users where login=?1 and islock=false and isenabled=true and role='ADMIN'")
+    Optional<UserEntity> findUserByLoginAndLockAndEnabledAndIsAdmin(String login);
+
 }

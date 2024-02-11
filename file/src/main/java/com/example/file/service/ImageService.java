@@ -17,7 +17,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class ImageService {
     private final ImageDao imageDao;
-    private final ImageMediator imageMediator;
+    private final FtpService ftpService;
 
     public void saveImage(ImageEntity image) {
         imageDao.saveAndFlush(image);
@@ -41,7 +41,7 @@ public class ImageService {
     public void cleanImages(){
         imageDao.findUnusedImages().forEach(image -> {
             try {
-                imageMediator.deleteFileFromFTP(image.getPath());
+                ftpService.deleteImage(image.getPath());
                 imageDao.delete(image);
             } catch (IOException e){
                 log.info("Cannot delete "+ image.getUuid());

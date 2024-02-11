@@ -8,7 +8,8 @@ public enum Code {
     A3("User with this login already exists"),
     A4("User with this email already exists"),
     A5("Given token is empty or expired"),
-    A6("The user you trying to activate doesn't exist in our database");
+    A6("The user you trying to activate doesn't exist in our database"),
+    A7("User doesn't exist or has no Admin status");
     public final String label;
     private Code(String label){
         this.label = label;

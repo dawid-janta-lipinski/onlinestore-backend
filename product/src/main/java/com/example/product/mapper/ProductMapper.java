@@ -19,7 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ProductMapper {
     private final CategoryMapper categoryMapper;
-    private CategoryService categoryService;
+    private final CategoryService categoryService;
 
     public SimpleProductDTO createSimpleProductDTOFromProductEntity(ProductEntity productEntity){
         return new SimpleProductDTO(

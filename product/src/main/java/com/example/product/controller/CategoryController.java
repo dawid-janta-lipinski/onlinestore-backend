@@ -19,7 +19,7 @@ public class CategoryController {
         return categoryMediator.getCategories();
     }
 
-    @PostMapping("add")
+    @PostMapping()
     public ResponseEntity<Response> createCategory(@RequestBody CategoryDTO categoryDTO) {
         return categoryMediator.createCategory(categoryDTO);
     }

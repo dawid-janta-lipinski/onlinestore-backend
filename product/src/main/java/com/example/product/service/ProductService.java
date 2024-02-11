@@ -112,7 +112,7 @@ public class ProductService {
             predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + name.toLowerCase() + "%"));
         }
         if (category != null && !category.equals("")) {
-            categoryDao.findByShortId(category)
+            categoryDao.findCategoryByShortId(category)
                     .ifPresent(value-> predicates.add(criteriaBuilder.equal(root.get("category"), value)));
         }
         if (price_min != null) {

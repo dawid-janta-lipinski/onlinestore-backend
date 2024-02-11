@@ -86,8 +86,4 @@ public class ImageMediator {
         }
         return ResponseEntity.ok(new Response("Image successfully activated."));
     }
-
-    public void deleteFileFromFTP(String path) throws IOException {
-        ftpService.deleteImage(path);
-    }
 }

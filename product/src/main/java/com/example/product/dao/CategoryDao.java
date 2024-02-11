@@ -10,5 +10,5 @@ import java.util.Optional;
 public interface CategoryDao extends JpaRepository<CategoryEntity, Long> {
     Optional<CategoryEntity> findCategoryByName(String name);
 
-    Optional<CategoryEntity> findByShortId(String category);
+    Optional<CategoryEntity> findCategoryByShortId(String category);
 }

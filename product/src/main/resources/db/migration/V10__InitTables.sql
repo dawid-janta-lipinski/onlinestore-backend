@@ -8,7 +8,7 @@ CREATE TABLE categories
 CREATE TABLE products
 (
     id                  serial primary key,
-    uid                 varchar   not null,
+    uuid                 varchar   not null,
     active            boolean   not null DEFAULT FALSE,
     product_name        varchar   not null,
     main_desc           TEXT      not null,

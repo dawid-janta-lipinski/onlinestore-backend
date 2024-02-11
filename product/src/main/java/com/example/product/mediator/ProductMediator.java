@@ -61,7 +61,7 @@ public class ProductMediator {
         } catch (ObjectDoesntExistException e){
             return ResponseEntity.status(400).body(new Response("This category doesn't exist."));
         } catch (RuntimeException exception){
-            return ResponseEntity.status(400).body(new Response("Couldn't activate the image, can't add product."));
+            return ResponseEntity.status(400).body(new Response(exception.getMessage()));
         }
     }
 

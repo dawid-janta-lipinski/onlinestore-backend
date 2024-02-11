@@ -187,4 +187,29 @@ public class UserService {
         if (cookie != null) response.addCookie(cookie);
         return  ResponseEntity.ok(new AuthResponse(Code.SUCCESS));
     }
+
+    public void authorize(HttpServletRequest request) throws UserDoesntExistException{
+        String token = null;
+        String refresh = null;
+        if (request.getCookies() != null){
+            log.info("Can't login because in token is empty");
+            throw new IllegalArgumentException("Token can't be null");
+        }
+        for (Cookie cookie : Arrays.stream(request.getCookies()).toList()) {
+            if (cookie.getName().equals("Authorization")) {
+                token = cookie.getValue();
+            } else if (cookie.getName().equals("refresh")) {
+                refresh = cookie.getValue();
+            }
+        }
+
+        if (token != null && !token.isEmpty()){
+            String subject = jwtService.getSubject(token);
+            userDao.findUserByLoginAndLockAndEnabledAndIsAdmin(subject).orElseThrow(()->new UserDoesntExistException("User not found"));
+        } else if (refresh != null && !refresh.isEmpty()) {
+            String subject = jwtService.getSubject(refresh);
+            userDao.findUserByLoginAndLockAndEnabledAndIsAdmin(subject).orElseThrow(()->new UserDoesntExistException("User not found"));
+        }
+    }
+
 }

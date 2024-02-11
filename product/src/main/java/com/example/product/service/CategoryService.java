@@ -35,7 +35,7 @@ public class CategoryService {
     }
 
     public CategoryEntity findCategoryByShortId(String categoryShortId) throws ObjectDoesntExistException {
-        CategoryEntity category = categoryDao.findByShortId(categoryShortId).orElse(null);
+        CategoryEntity category = categoryDao.findCategoryByShortId(categoryShortId).orElse(null);
         if (category == null) throw new ObjectDoesntExistException("This category doesn't exist");
         return category;
     }

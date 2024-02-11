@@ -2,6 +2,10 @@ package com.example.gateway.filters;
 
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
+import com.example.gateway.model.Endpoint;
+import pl.jantalipinski.model.HttpMethod;
+import pl.jantalipinski.model.Role;
+
 
 import java.util.HashSet;
 import java.util.List;
@@ -10,30 +14,49 @@ import java.util.function.Predicate;
 
 @Component
 public class RouteValidator {
-    public static final List<String> publicEndpoints = List.of(
-            "/auth/register",
-            "/auth/login",
-            "/auth/auto-login",
-            "/auth/logout",
-            "/auth/logged-in",
-            "/auth/validate",
-            "/auth/activate",
-            "/auth/reset-password",
-            "/auth/reset-password"
+    public Set<Endpoint> openApiEndpoints = new HashSet<>(List.of(
+            new Endpoint("/auth/logout", HttpMethod.GET,Role.GUEST),
+            new Endpoint("/auth/register",HttpMethod.POST,Role.GUEST),
+            new Endpoint("/auth/login",HttpMethod.POST,Role.GUEST),
+            new Endpoint("/auth/validate",HttpMethod.GET,Role.GUEST),
+            new Endpoint("/auth/activate",HttpMethod.GET,Role.GUEST),
+            new Endpoint("/auth/authorize",HttpMethod.GET,Role.GUEST),
+            new Endpoint("/auth/reset-password",HttpMethod.PATCH,Role.GUEST),
+            new Endpoint("/auth/reset-password",HttpMethod.POST,Role.GUEST),
+            new Endpoint("/api/v1/gateway",HttpMethod.POST,Role.GUEST),
+            new Endpoint("/api/v1/auto-login",HttpMethod.GET,Role.GUEST),
+            new Endpoint("/api/v1/logged-in",HttpMethod.GET,Role.GUEST)
+    )
     );
-    //TODO fix this
-//    private Set<Endpoint> adminEndpoints = new HashSet<>();
-//    public Predicate<ServerHttpRequest> isAdmin = request ->
-//            adminEndpoints.stream()
-//                    .anyMatch(endpoint -> request.getURI()
-//                            .getPath()
-//                            .contains(endpoint.getUrl())
-//                            && request.getMethod().name().equals(endpoint.getHttpMethod().name()));
 
-    public Predicate<ServerHttpRequest> isSecured = request ->
-            publicEndpoints.stream()
-            .noneMatch(endpoint -> request.getURI()
-                    .getPath()
-                    .contains(endpoint));
+
+    private Set<Endpoint> adminEndpoints = new HashSet<>();
+
+    public void addEndpoints(List<Endpoint> endpointList){
+        for (Endpoint endpoint: endpointList){
+            if (endpoint.getRole().name().equals(Role.ADMIN.name())) {
+                adminEndpoints.add(endpoint);
+            }
+            if (endpoint.getRole().name().equals(Role.GUEST.name())) {
+                openApiEndpoints.add(endpoint);
+            }
+        }
+    }
+
+    public Predicate<ServerHttpRequest> isAdmin = request ->
+            adminEndpoints.stream()
+                    .anyMatch(endpoint -> request.getURI()
+                            .getPath()
+                            .contains(endpoint.getUrl())
+                            && request.getMethod().name().equals(endpoint.getHttpMethod().name()));
+
+    public Predicate<ServerHttpRequest> isSecure =
+            request -> openApiEndpoints
+                    .stream()
+                    .noneMatch(value -> request.getURI()
+                            .getPath()
+                            .contains(value.getUrl())
+                            && request.getMethod().name().equals(value.getHttpMethod().name()));
+
 }
 
