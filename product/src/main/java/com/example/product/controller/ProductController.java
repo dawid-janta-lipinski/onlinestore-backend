@@ -4,6 +4,7 @@ import com.example.product.dao.ProductDao;
 import com.example.product.mediator.ProductMediator;
 import com.example.product.model.Product;
 import com.example.product.model.ProductDTO;
+import com.example.product.model.ProductFormDTO;
 import com.example.product.model.Response;
 import com.example.product.service.ProductService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,9 +33,12 @@ public class ProductController {
         return productMediator.getProduct(_page, _limit, name_like, _category, price_min, price_max, date, _sort,_order);
     }
 
-    @PostMapping("add")
-    public ResponseEntity<?> addProduct(@RequestBody ProductDTO product){
-        //productService.addProduct(product);
-        return ResponseEntity.ok(new Response("New product added!"));
+    @PostMapping()
+    public ResponseEntity<Response> save(@RequestBody ProductFormDTO product){
+        return productMediator.saveProduct(product);
+    }
+    @DeleteMapping
+    public ResponseEntity<Response> delete(@RequestParam String uuid){
+        return productMediator.deleteProduct(uuid);
     }
 }

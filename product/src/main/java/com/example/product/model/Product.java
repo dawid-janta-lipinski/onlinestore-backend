@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @MappedSuperclass
 public class Product {
-    private String uid;
+    private String uuid;
     private boolean active;
     @Column(name = "product_name")
     private String name;
@@ -21,8 +21,8 @@ public class Product {
     private String parameters;
     private LocalDate createAt;
 
-    public Product(String uid, boolean active, String name, String mainDesc, String descHtml, float price, String[] imageUrls, String parameters, LocalDate createdAt) {
-        this.uid = uid;
+    public Product(String uuid, boolean active, String name, String mainDesc, String descHtml, float price, String[] imageUrls, String parameters, LocalDate createdAt) {
+        this.uuid = uuid;
         this.active = active;
         this.name = name;
         this.mainDesc = mainDesc;

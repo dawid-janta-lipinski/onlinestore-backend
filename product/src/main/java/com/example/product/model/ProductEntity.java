@@ -19,8 +19,8 @@ public class ProductEntity extends Product {
     @JoinColumn(name = "category_id")
     private CategoryEntity category;
 
-    public ProductEntity(String uid, boolean active, String name, String mainDesc, String descHtml, float price, String[] imageUrls, String parameters, LocalDate createdAt, CategoryEntity category) {
-        super(uid, active, name, mainDesc, descHtml, price, imageUrls, parameters, createdAt);
+    public ProductEntity(String uuid, boolean active, String name, String mainDesc, String descHtml, float price, String[] imageUrls, String parameters, LocalDate createdAt, CategoryEntity category) {
+        super(uuid, active, name, mainDesc, descHtml, price, imageUrls, parameters, createdAt);
         this.category = category;
     }
 }

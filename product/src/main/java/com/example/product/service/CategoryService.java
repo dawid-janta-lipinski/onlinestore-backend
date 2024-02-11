@@ -1,6 +1,7 @@
 package com.example.product.service;
 
 import com.example.product.dao.CategoryDao;
+import com.example.product.exceptions.ObjectDoesntExistException;
 import com.example.product.exceptions.ObjectExistsInDatabaseException;
 import com.example.product.mapper.CategoryMapper;
 import com.example.product.model.CategoryDTO;
@@ -31,5 +32,11 @@ public class CategoryService {
                 UUID.randomUUID().toString().replace("-","").substring(0,12)
         )
         );
+    }
+
+    public CategoryEntity findCategoryByShortId(String categoryShortId) throws ObjectDoesntExistException {
+        CategoryEntity category = categoryDao.findByShortId(categoryShortId).orElse(null);
+        if (category == null) throw new ObjectDoesntExistException("This category doesn't exist");
+        return category;
     }
 }
