@@ -19,9 +19,15 @@ public class ProductController {
 
     private final ProductMediator productMediator;
 
+    @PostMapping()
+    public ResponseEntity<Response> save(@RequestBody ProductFormDTO product){
+        return productMediator.saveProduct(product);
+    }
+
     @GetMapping
     public ResponseEntity<?> get(HttpServletRequest request,
                                  @RequestParam(required = false) String name_like,
+                                 @RequestParam(required = false) String _uuid,
                                  @RequestParam(required = false) String date,
                                  @RequestParam(required = false) String _category,
                                  @RequestParam(required = false) Float price_min,
@@ -30,13 +36,9 @@ public class ProductController {
                                  @RequestParam(required = false, defaultValue = "10") int _limit,
                                  @RequestParam(required = false,defaultValue = "price") String _sort,
                                  @RequestParam(required = false,defaultValue = "asc") String _order){
-        return productMediator.getProduct(_page, _limit, name_like, _category, price_min, price_max, date, _sort,_order);
+        return productMediator.getProduct(_page, _limit, name_like, _category, price_min, price_max, date, _sort,_order, _uuid);
     }
 
-    @PostMapping()
-    public ResponseEntity<Response> save(@RequestBody ProductFormDTO product){
-        return productMediator.saveProduct(product);
-    }
     @DeleteMapping
     public ResponseEntity<Response> delete(@RequestParam String uuid){
         return productMediator.deleteProduct(uuid);

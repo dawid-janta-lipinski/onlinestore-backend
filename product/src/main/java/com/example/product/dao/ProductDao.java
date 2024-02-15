@@ -12,8 +12,8 @@ import java.util.Optional;
 @Repository
 public interface ProductDao extends JpaRepository<ProductEntity, Long> {
 
-    @Query(nativeQuery = true, value = "SELECT * FROM products WHERE product_name=? 1 AND create_at =? 2")
-    List<ProductEntity> findByNameAndCreateAt(String name, LocalDate date);
+    @Query(nativeQuery = true, value = "SELECT * FROM products WHERE product_name = ? 1 AND create_at = date(? 2)")
+    List<ProductEntity> findByNameAndCreateAt(String name, String date);
 
     Optional<ProductEntity> findByUuid(String uuid);
 }

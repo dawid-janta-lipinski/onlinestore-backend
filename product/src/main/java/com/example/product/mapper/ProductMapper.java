@@ -23,6 +23,7 @@ public class ProductMapper {
 
     public SimpleProductDTO createSimpleProductDTOFromProductEntity(ProductEntity productEntity){
         return new SimpleProductDTO(
+                productEntity.getUuid(),
                 productEntity.getName(),
                 productEntity.getMainDesc(),
                 productEntity.getPrice(),

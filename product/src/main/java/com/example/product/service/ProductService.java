@@ -63,9 +63,8 @@ public class ProductService {
         Root<ProductEntity> root = query.from(ProductEntity.class);
 
         if (date != null && !date.equals("") && name != null && !name.trim().equals("")){
-            DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-            LocalDate localDate = LocalDate.parse(date, inputFormatter);
-            return productDao.findByNameAndCreateAt(name, localDate);
+
+            return productDao.findByNameAndCreateAt(name, date);
         }
         if (page <= 0) page = 1;
 
@@ -162,5 +161,11 @@ public class ProductService {
     private void deleteImage(String image) {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.delete(FILE_SERVICE+"/?uuid="+image);
+    }
+
+    public ProductEntity getSingleProduct(String uuid) throws ObjectDoesntExistException {
+        ProductEntity product = productDao.findByUuid(uuid).orElse(null);
+        if (product == null) throw new ObjectDoesntExistException("This product doesn't exist");
+        return product;
     }
 }

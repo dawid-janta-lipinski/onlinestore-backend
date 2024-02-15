@@ -24,12 +24,17 @@ public class ProductMediator {
     private final CategoryMediator categoryMediator;
     @Value("${file-service.url}")
     private String FILE_SERVICE;
-    public ResponseEntity<?> getProduct(int page, int limit, String name, String category, Float price_min, Float price_max, String date, String sort, String order) {
+    public ResponseEntity<?> getProduct(int page, int limit, String name, String category, Float price_min, Float price_max, String date, String sort, String order, String uuid) {
+
+        if (uuid != null && !uuid.isEmpty()){
+            return getSingleProduct(uuid);
+        }
+
         if (name != null && !name.isEmpty()){
             try {
                 name = URLDecoder.decode(name, "UTF-8");
             } catch (UnsupportedEncodingException e) {
-                return ResponseEntity.status(400).body(new Response("Unsuported encryption format for name"));
+                return ResponseEntity.status(400).body(new Response("Unsupported encryption format for name"));
             }
         }
 
@@ -39,10 +44,10 @@ public class ProductMediator {
             Arrays.stream(product.getImageUrls()).map( image -> FILE_SERVICE + "?uuid=" + image);
         });
 
-        if (name != null && !name.isEmpty() && date != null && !date.isEmpty()){
-            ProductDTO productDTO = productMapper.createProductDTOFromProductEntity(products.get(0));
-            return ResponseEntity.ok().body(productDTO);
-        }
+//        if (name != null && !name.isEmpty() && date != null && !date.isEmpty()){
+//            ProductDTO productDTO = productMapper.createProductDTOFromProductEntity(products.get(0));
+//            return ResponseEntity.ok().body(productDTO);
+//        }
 
         List<SimpleProductDTO> simpleProductDTOS = new ArrayList<>();
 
@@ -69,6 +74,17 @@ public class ProductMediator {
         try{
             productService.deleteProduct(uuid);
             return ResponseEntity.ok(new Response("Successfully deleted product."));
+        } catch (ObjectDoesntExistException e){
+            return ResponseEntity.status(400).body(new Response("This product doesn't exist."));
+        }
+    }
+
+    public ResponseEntity<?> getSingleProduct(String uuid) {
+        try {
+            ProductEntity productEntity = productService.getSingleProduct(uuid);
+            ProductDTO productDTO = productMapper.createProductDTOFromProductEntity(productEntity);
+
+            return ResponseEntity.ok(productDTO);
         } catch (ObjectDoesntExistException e){
             return ResponseEntity.status(400).body(new Response("This product doesn't exist."));
         }

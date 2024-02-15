@@ -12,6 +12,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SimpleProductDTO {
+    private String uuid;
     private String name;
     private String mainDesc;
     private float price;
