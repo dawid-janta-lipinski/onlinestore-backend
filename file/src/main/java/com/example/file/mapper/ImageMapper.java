@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 public class ImageMapper {
     public ImageDTO createImageDTOFromImageEntity(ImageEntity image){
         return ImageDTO.builder()
+                .uuid(image.getUuid())
                 .createdAt(image.getCreatedAt())
-                .isUsed(image.isUsed())
                 .build();
     }
 }

@@ -11,7 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping(value = "api/v1/image")
 public class FileController {
-    private ImageMediator imageMediator;
+    private final ImageMediator imageMediator;
 
     @PostMapping
     public ResponseEntity<?> saveFile (@RequestBody MultipartFile multipartFile){
@@ -20,7 +20,7 @@ public class FileController {
 
     @DeleteMapping
     public ResponseEntity<Response> deleteFile(@RequestParam String uuid){
-        return imageMediator.deleteImage(uuid);
+        return imageMediator.deleteFile(uuid);
     }
 
     @GetMapping

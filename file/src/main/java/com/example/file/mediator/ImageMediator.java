@@ -8,6 +8,7 @@ import com.example.file.model.Response;
 import com.example.file.service.FtpService;
 import com.example.file.service.ImageService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,6 +21,7 @@ import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class ImageMediator {
     private final ImageService imageService;
     private final FtpService ftpService;
@@ -29,24 +31,25 @@ public class ImageMediator {
         ImageEntity image;
 
         try {
-            if (file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".")+1).equals("png")){
-                return ResponseEntity.status(400).body(new Response("Media type not supported. Use .png file."));
-            }
-            image = ftpService.uploadImageToFtp(file);
+
+//            if (file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".")+1).equals("png")){
+//                return ResponseEntity.status(400).body(new Response("Media type not supported. Use .png file."));
+//            }
+            image = ftpService.uploadFileToFtp(file);
             imageService.saveImage(image);
             return ResponseEntity.ok(imageMapper.createImageDTOFromImageEntity(image));
-        } catch (FtpConnectionException e){
+        } catch (FtpConnectionException e) {
             return ResponseEntity.status(400).body(new Response("Can't save file"));
-        } catch (NullPointerException exception) {
-            return ResponseEntity.status(400).body(new Response("Media type not supported. Use .png file."));
+        } catch (NullPointerException | IOException exception) {
+            return ResponseEntity.status(400).body(new Response(exception.getMessage()));
         }
     }
 
-    public ResponseEntity<Response> deleteImage(String uuid) {
+    public ResponseEntity<Response> deleteFile(String uuid) {
         boolean deleted;
         try {
             String imagePath = imageService.findImageByUuid(uuid).getPath();
-            deleted = ftpService.deleteImage(imagePath);
+            deleted = ftpService.deleteFile(imagePath);
         } catch (IOException e){
             return ResponseEntity.status(400).body(new Response("Connection issues. Can't delete file"));
         } catch (ImageNotFoundException ex){

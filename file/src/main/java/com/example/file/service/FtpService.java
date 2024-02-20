@@ -4,6 +4,7 @@ import com.example.file.exceptions.FtpConnectionException;
 import com.example.file.exceptions.ImageNotFoundException;
 import com.example.file.model.ImageEntity;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
@@ -36,51 +37,45 @@ public class FtpService {
         ftpClient.connect(FTP_SERVER, FTP_PORT);
         ftpClient.login(FTP_USERNAME, FTP_PASSWORD);
 
-        ftpClient.enterLocalActiveMode();
-        ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
-
+        ftpClient.enterLocalPassiveMode();
+        ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
         return ftpClient;
     }
-    public ImageEntity uploadImageToFtp (MultipartFile file) throws FtpConnectionException {
 
-        FTPClient ftpClient;
-
+    public ImageEntity uploadFileToFtp(MultipartFile file) throws FtpConnectionException,IOException {
         try {
-            ftpClient = getFtpConnection();
-
+            FTPClient ftpClient = getFtpConnection();
             String remoteFilePath = FTP_ORIGIN_DIRECTORY +"/"+LocalDate.now()+"/"+ file.getOriginalFilename();
-
-            boolean uploaded = uploadFile(file, ftpClient, remoteFilePath);
-            if(!uploaded) {
-                createDirectory(ftpClient);
-                if(uploadFile(file, ftpClient, remoteFilePath)) {
+            boolean uploaded = streamFile(file,ftpClient,remoteFilePath);
+            if (!uploaded) {
+                createFolder(ftpClient);
+                if (!streamFile(file,ftpClient,remoteFilePath)){
                     throw new FtpConnectionException("Cannot connect to server");
                 }
             }
             ftpClient.logout();
             ftpClient.disconnect();
-
             return ImageEntity.builder()
                     .path(remoteFilePath)
                     .uuid(UUID.randomUUID().toString())
                     .createdAt(LocalDate.now())
-                    .isUsed(false)
-                    .build();
+                    .isUsed(false).build();
         } catch (IOException e) {
             throw new FtpConnectionException(e);
         }
     }
-    private void createDirectory(FTPClient ftpClient) throws IOException {
-        ftpClient.makeDirectory(FTP_ORIGIN_DIRECTORY+"/"+LocalDate.now());
+    private void createFolder(FTPClient client) throws IOException {
+        client.makeDirectory(FTP_ORIGIN_DIRECTORY+"/"+LocalDate.now());
     }
 
-    private boolean uploadFile(MultipartFile file, FTPClient client, String remoteFilePath) throws IOException {
+    private boolean streamFile(MultipartFile file,FTPClient ftpClient,String remoteFilePath) throws IOException {
         InputStream inputStream = file.getInputStream();
+        boolean uploaded = ftpClient.storeFile(remoteFilePath, inputStream);
         inputStream.close();
-        return client.storeFile(remoteFilePath, inputStream);
+        return uploaded;
     }
 
-    public boolean deleteImage(String path) throws IOException {
+    public boolean deleteFile(String path) throws IOException {
         FTPClient ftpClient = getFtpConnection();
         boolean deleted = ftpClient.deleteFile(path);
         ftpClient.logout();
@@ -88,14 +83,16 @@ public class FtpService {
         return deleted;
     }
 
-    public ByteArrayOutputStream getFile(ImageEntity image) throws IOException {
+    public ByteArrayOutputStream getFile(ImageEntity imageEntity) throws IOException {
         FTPClient ftpClient = getFtpConnection();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        boolean downloaded = ftpClient.retrieveFile(image.getPath(), outputStream);
-
+        boolean downloaded = ftpClient.retrieveFile(imageEntity.getPath(),outputStream);
         ftpClient.logout();
         ftpClient.disconnect();
-        if (!downloaded) throw new FtpConnectionException("Cannot download file");
-        return outputStream;
+        if (downloaded){
+            return outputStream;
+        }
+        throw new FtpConnectionException("Cannot download file");
     }
+
 }

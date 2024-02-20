@@ -12,6 +12,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ImageDTO {
-    private boolean isUsed;
+    private String uuid;
     private LocalDate createdAt;
 }

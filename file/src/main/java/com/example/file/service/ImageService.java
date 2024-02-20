@@ -41,7 +41,7 @@ public class ImageService {
     public void cleanImages(){
         imageDao.findUnusedImages().forEach(image -> {
             try {
-                ftpService.deleteImage(image.getPath());
+                ftpService.deleteFile(image.getPath());
                 imageDao.delete(image);
             } catch (IOException e){
                 log.info("Cannot delete "+ image.getUuid());
