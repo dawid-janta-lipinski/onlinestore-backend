@@ -160,7 +160,8 @@ public class ProductService {
 
     private void deleteImage(String image) {
         RestTemplate restTemplate = new RestTemplate();
-        restTemplate.delete(FILE_SERVICE+"/?uuid="+image);
+
+        restTemplate.delete(image);
     }
 
     public ProductEntity getSingleProduct(String uuid) throws ObjectDoesntExistException {

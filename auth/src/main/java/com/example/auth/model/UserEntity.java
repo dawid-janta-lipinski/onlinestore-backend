@@ -33,22 +33,15 @@ public class UserEntity {
     private boolean isEnabled;
 
     public UserEntity(){
-        generateUuid();
+        this.uuid = UUID.randomUUID().toString();
     }
     public UserEntity(long id, String uuid, String login, String email, String password, Role role, boolean isLock, boolean isEnabled) {
-        this.id = id;
-        this.uuid = uuid;
+        this.uuid = UUID.randomUUID().toString();
         this.login = login;
         this.email = email;
         this.password = password;
         this.role = role;
         this.isLock = isLock;
         this.isEnabled = isEnabled;
-        generateUuid();
-    }
-    private void generateUuid(){
-        if (uuid == null || uuid.equals("")){
-            setUuid(UUID.randomUUID().toString());
-        }
     }
 }

@@ -40,7 +40,6 @@ public class UserService {
     private int refreshExp;
     private final EmailService emailService;
     private final ResetPasswordService resetPasswordService;
-    private final ResetPasswordOperationsDao resetPasswordOperationsDao;
     private void saveUser(UserEntity userEntity){
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
         userDao.saveAndFlush(userEntity);
